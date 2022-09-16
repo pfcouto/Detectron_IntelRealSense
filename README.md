@@ -149,4 +149,3 @@ SORT proposes using a Kalman filter to predict the trajectory of previously iden
 ### 4.2 Velocity Vector Arrows
 
 Optionally, vector arrows can be superimposed on the image. These vector arrows show the direction the object is moving in 3D space. Each arrow is represented through the Arrow3D class, which essentially is the same as the FancyArrowPatch class from matplotlib, with additional 3D support.
-# Detectron_IntelRealSense

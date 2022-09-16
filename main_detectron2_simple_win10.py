@@ -521,6 +521,10 @@ if __name__ == "__main__":
     video_streamer.start()
     time.sleep(1)
 
+#TODO
+    filename = 0
+    directory = r'/home/pedro/Escola/Investigacao/Imagens_Teste'
+
     while True:
         
         time_start = time.time()
@@ -679,7 +683,6 @@ if __name__ == "__main__":
             #convert degrees to radians
             brng = radians(45)
 
-            #TODO metros para km /1000 - done acho eu
             centre_depth_km = centre_depth/1000
 
             print(f"centre_depth_km: {centre_depth_km:.8f}")
@@ -697,6 +700,12 @@ if __name__ == "__main__":
         #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         #cv2.imshow('Segmented Image', color_image)
         cv2.imshow('Segmented Image', v.output.get_image()[:, :, ::-1])
+
+#TODO
+        # os.chdir(directory)
+        # cv2.imwrite("imagemTeste" + str(filename),v.output.get_image()[:, :, ::-1])
+        # filename += 1
+
         #cv2.imshow('Depth', depth_colormap)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -706,6 +715,8 @@ if __name__ == "__main__":
 
         print("Time to process frame: {:.2f}".format(total_time))
         print("FPS: {:.2f}\n".format(1/total_time))
+
+        
         
     video_streamer.stop()
     cv2.destroyAllWindows()
