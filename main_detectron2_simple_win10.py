@@ -27,6 +27,9 @@ In Windows10 BW vip notes:
       This won't work (you want to use pip installation).
     (VIP-BW) You may remove detectron directory or change the name(as I do here), so python will look in pip packages.
 """
+
+from math import *
+
 import numpy as np
 import time
 import cv2
@@ -664,8 +667,29 @@ if __name__ == "__main__":
 
 
             v.draw_circle((cX, cY), (0, 0, 0))
+
+            # Calculate Coords of objects
+            R = 6378.1 
+
+            lat_A = radians(0)
+            lon_A = radians(0)
+            
+            # centre_depth = distance
+
+            #convert degrees to radians
+            brng = radians(45)
+
+            #TODO metros para km /1000 - done acho eu
+            centre_depth_km = centre_depth/1000
+
+            print(f"centre_depth_km: {centre_depth_km:.8f}")
+
+            lat_B = asin(sin(lat_A) * cos(centre_depth_km/R) + cos(lat_A) * sin(centre_depth_km/R) * cos(brng))
+            lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
+
             v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
             
+            v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
 
         #for i in detected_objects:
             #print(i)
