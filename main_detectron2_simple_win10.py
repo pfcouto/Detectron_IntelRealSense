@@ -28,6 +28,8 @@ In Windows10 BW vip notes:
     (VIP-BW) You may remove detectron directory or change the name(as I do here), so python will look in pip packages.
 """
 
+from ast import If
+from calendar import c
 from math import *
 
 import numpy as np
@@ -204,10 +206,12 @@ def get(config_path, trained = False):
 # <<---------------------- load predefined model -------------------
 
 
-
 # Resolution of camera streams
-RESOLUTION_X = 640  #640, 1280
-RESOLUTION_Y = 480   #360(BW:cannot work in this PC, min:480)  #480, 720
+# RESOLUTION_X = 640  #640, 1280
+# RESOLUTION_Y = 480   #360(BW:cannot work in this PC, min:480)  #480, 720
+
+RESOLUTION_X = 640
+RESOLUTION_Y = 360  
 
 # Configuration for histogram for depth image
 NUM_BINS = 500    #500 x depth_scale = e.g. 500x0.001m=50cm
@@ -521,9 +525,6 @@ if __name__ == "__main__":
     video_streamer.start()
     time.sleep(1)
 
-#TODO
-    filename = 0
-    directory = r'/home/pedro/Escola/Investigacao/Imagens_Teste'
 
     while True:
         
@@ -593,11 +594,10 @@ if __name__ == "__main__":
             num_median = math.floor(mask_area / 2)
             
             histg = cv2.calcHist([depth_image], [0], detected_objects[i].mask.mask, [NUM_BINS], [0, MAX_RANGE])
-            
-            
+
             # Uncomment this to use the debugging function
-            #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-            #debug_plots(color_image, depth_image, masks[i].mask, histg, depth_colormap)
+            # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            # debug_plots(color_image, depth_image, masks[i].mask, histg, depth_colormap)
             
             centre_depth = find_median_depth(mask_area, num_median, histg)
             detected_objects[i].distance = centre_depth
@@ -670,6 +670,33 @@ if __name__ == "__main__":
             #             continue
 
 
+            # TODO
+            #? CONTINUAR A FAZER
+            # Calculo dos angulos (dá a diferenca, ou seja, pode ser um valor negativo, para a esquerda do centro e negativo,
+            # vou ter de subtrair ou somar no angulo do drone)
+
+            HFOV_DEPTH_VGA = 75
+            VFOV_DEPTH_VGA = 62
+
+            HFOV_DEPTH_HD = 787
+            VFOV_DEPTH_HD = 58
+
+            HFOV_COLOR_CAMERA = 69
+            VFOV_COLOR_CAMERA = 42
+
+            CENTER_POINT_X = RESOLUTION_X / 2
+            CENTER_POINT_Y = RESOLUTION_Y / 2
+
+            # cx, cy -> mask center point
+
+            H_Angle = ((cX- CENTER_POINT_X)/CENTER_POINT_X)*(HFOV_DEPTH_VGA/2)
+            V_Angle = ((cY - CENTER_POINT_Y)/CENTER_POINT_Y)*(VFOV_DEPTH_VGA/2)
+
+            angulo_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
+
+            # print(f"Angulo: {angulo_camera_to_point}")
+
+
             v.draw_circle((cX, cY), (0, 0, 0))
 
             # Calculate Coords of objects
@@ -681,18 +708,24 @@ if __name__ == "__main__":
             # centre_depth = distance
 
             #convert degrees to radians
-            brng = radians(45)
+            brng = radians(45 + H_Angle)
 
             centre_depth_km = centre_depth/1000
-
-            print(f"centre_depth_km: {centre_depth_km:.8f}")
 
             lat_B = asin(sin(lat_A) * cos(centre_depth_km/R) + cos(lat_A) * sin(centre_depth_km/R) * cos(brng))
             lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
 
-            v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
             
+            v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+        
             v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
+            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
+
+            v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
+
+            
+            
+            
 
         #for i in detected_objects:
             #print(i)
@@ -701,11 +734,6 @@ if __name__ == "__main__":
         #cv2.imshow('Segmented Image', color_image)
         cv2.imshow('Segmented Image', v.output.get_image()[:, :, ::-1])
 
-#TODO
-        # os.chdir(directory)
-        # cv2.imwrite("imagemTeste" + str(filename),v.output.get_image()[:, :, ::-1])
-        # filename += 1
-
         #cv2.imshow('Depth', depth_colormap)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -713,8 +741,8 @@ if __name__ == "__main__":
         time_end = time.time()
         total_time = time_end - time_start
 
-        print("Time to process frame: {:.2f}".format(total_time))
-        print("FPS: {:.2f}\n".format(1/total_time))
+        # print("Time to process frame: {:.2f}".format(total_time))
+        # print("FPS: {:.2f}\n".format(1/total_time))
 
         
         
