@@ -719,10 +719,10 @@ if __name__ == "__main__":
             lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
 
             
-            # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+            v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
         
-            # v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
-            # v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
+            v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
+            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
 
             v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
 
