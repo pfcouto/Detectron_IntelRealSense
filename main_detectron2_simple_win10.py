@@ -258,11 +258,15 @@ class VideoStreamer:
             color_frame = frames.get_color_frame()
             depth_frame = frames.get_depth_frame()
 
+            # print(f"Distance 320,180: {depth_frame.get_distance(320, 180)}")
+
             self.depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
             
             # Convert image to numpy array and initialise images
             self.color_image = np.asanyarray(color_frame.get_data())
             self.depth_image = np.asanyarray(depth_frame.get_data())
+
+            
 
 
     def stop(self):
@@ -541,7 +545,7 @@ if __name__ == "__main__":
 
         t2 = time.time()
         model_time = t2 - t1
-        print("Model took {:.2f} time".format(model_time))
+        # print("Model took {:.2f} time".format(model_time))
 
         predictions = outputs['instances']
         
@@ -598,7 +602,6 @@ if __name__ == "__main__":
             # Uncomment this to use the debugging function
             # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
             # debug_plots(color_image, depth_image, masks[i].mask, histg, depth_colormap)
-            
             centre_depth = find_median_depth(mask_area, num_median, histg)
             detected_objects[i].distance = centre_depth
             cX, cY = find_mask_centre(detected_objects[i].mask._mask, v.output)
@@ -716,22 +719,21 @@ if __name__ == "__main__":
             lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
 
             
-            v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+            # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
         
-            v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
-            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
+            # v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
+            # v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
 
             v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
 
-            
-            
+
             
 
         #for i in detected_objects:
             #print(i)
 
         #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-        #cv2.imshow('Segmented Image', color_image)
+        # cv2.imshow('Segmented Image', color_image)
         cv2.imshow('Segmented Image', v.output.get_image()[:, :, ::-1])
 
         #cv2.imshow('Depth', depth_colormap)
