@@ -211,7 +211,7 @@ def get(config_path, trained = False):
 # RESOLUTION_Y = 480   #360(BW:cannot work in this PC, min:480)  #480, 720
 
 RESOLUTION_X = 640
-RESOLUTION_Y = 360  
+RESOLUTION_Y = 480
 
 # Configuration for histogram for depth image
 NUM_BINS = 500    #500 x depth_scale = e.g. 500x0.001m=50cm
@@ -258,7 +258,7 @@ class VideoStreamer:
             color_frame = frames.get_color_frame()
             depth_frame = frames.get_depth_frame()
 
-            # print(f"Distance 320,180: {depth_frame.get_distance(320, 180)}")
+            print(f"Distance {109},{280}: {depth_frame.get_distance(109, 280):.3f}")
 
             self.depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
             
@@ -577,7 +577,7 @@ if __name__ == "__main__":
 
         
         v.overlay_instances(
-            masks=masks,
+            # masks=masks,
             boxes=boxes,
             labels=labels,
             keypoints=None,
@@ -681,11 +681,11 @@ if __name__ == "__main__":
             HFOV_DEPTH_VGA = 75
             VFOV_DEPTH_VGA = 62
 
-            HFOV_DEPTH_HD = 787
-            VFOV_DEPTH_HD = 58
+            # HFOV_DEPTH_HD = 787
+            # VFOV_DEPTH_HD = 58
 
-            HFOV_COLOR_CAMERA = 69
-            VFOV_COLOR_CAMERA = 42
+            # HFOV_COLOR_CAMERA = 69
+            # VFOV_COLOR_CAMERA = 42
 
             CENTER_POINT_X = RESOLUTION_X / 2
             CENTER_POINT_Y = RESOLUTION_Y / 2
@@ -695,10 +695,11 @@ if __name__ == "__main__":
             H_Angle = ((cX- CENTER_POINT_X)/CENTER_POINT_X)*(HFOV_DEPTH_VGA/2)
             V_Angle = ((cY - CENTER_POINT_Y)/CENTER_POINT_Y)*(VFOV_DEPTH_VGA/2)
 
-            angulo_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
+
+            print(f"CX:{cX}, CY:{cY}")
+
 
             # print(f"Angulo: {angulo_camera_to_point}")
-
 
             v.draw_circle((cX, cY), (0, 0, 0))
 
@@ -718,11 +719,28 @@ if __name__ == "__main__":
             lat_B = asin(sin(lat_A) * cos(centre_depth_km/R) + cos(lat_A) * sin(centre_depth_km/R) * cos(brng))
             lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
 
+            # print("H_Angle: ", H_Angle)
+            # print("radians(H_Angle): ", radians(abs(H_Angle)))
+            # print("acos(radians(H_Angle)): ", cos(radians(abs(H_Angle))))
+            # print("degrees(acos(radians(H_Angle))): ", degrees(acos(radians(H_Angle))))
+
+            # TODO -> ver qual o calculo que está correto
+
+            new_Distance = (centre_depth/cos(radians(H_Angle))**2 + centre_depth*tan(radians(V_Angle))**2)**0.5
             
-            v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+            angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
+            new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
+
+            print("new_Distance: ", new_Distance)
+            print("new_Distance_2: ", new_Distance_2)
+
+
+            
+            # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+            v.draw_text("{:.2f}m".format(new_Distance), (cX, cY + 20))
         
-            v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
-            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
+            # v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
+            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 35))
 
             v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
 
