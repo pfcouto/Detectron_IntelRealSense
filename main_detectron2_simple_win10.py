@@ -678,22 +678,25 @@ if __name__ == "__main__":
             # Calculo dos angulos (dá a diferenca, ou seja, pode ser um valor negativo, para a esquerda do centro e negativo,
             # vou ter de subtrair ou somar no angulo do drone)
 
-            HFOV_DEPTH_VGA = 75
-            VFOV_DEPTH_VGA = 62
+            #? _DEPTH_VGA
+            # HFOV = 75
+            # VFOV_DEPTH_VGA = 62
 
-            # HFOV_DEPTH_HD = 787
+            #? _DEPTH_HD
+            # HFOV_DEPTH_HD = 78
             # VFOV_DEPTH_HD = 58
 
-            # HFOV_COLOR_CAMERA = 69
-            # VFOV_COLOR_CAMERA = 42
+            #? _Color_Camera
+            HFOV = 69
+            VFOV = 42
 
             CENTER_POINT_X = RESOLUTION_X / 2
             CENTER_POINT_Y = RESOLUTION_Y / 2
 
             # cx, cy -> mask center point
 
-            H_Angle = ((cX- CENTER_POINT_X)/CENTER_POINT_X)*(HFOV_DEPTH_VGA/2)
-            V_Angle = ((cY - CENTER_POINT_Y)/CENTER_POINT_Y)*(VFOV_DEPTH_VGA/2)
+            H_Angle = ((cX- CENTER_POINT_X)/CENTER_POINT_X)*(HFOV/2)
+            V_Angle = ((cY - CENTER_POINT_Y)/CENTER_POINT_Y)*(VFOV/2)
 
 
             print(f"CX:{cX}, CY:{cY}")
@@ -711,31 +714,29 @@ if __name__ == "__main__":
             
             # centre_depth = distance
 
-            #convert degrees to radians
+            #convert degrees to radians - em vez do 45 deve tar a direcao do drone
             brng = radians(45 + H_Angle)
-
-            centre_depth_km = centre_depth/1000
-
-            lat_B = asin(sin(lat_A) * cos(centre_depth_km/R) + cos(lat_A) * sin(centre_depth_km/R) * cos(brng))
-            lon_B = lon_A + atan2(sin(brng) * sin(centre_depth_km/R) * cos(lat_A), cos(centre_depth_km/R) - sin(lat_A) * sin(lat_B))
-
-            # print("H_Angle: ", H_Angle)
-            # print("radians(H_Angle): ", radians(abs(H_Angle)))
-            # print("acos(radians(H_Angle)): ", cos(radians(abs(H_Angle))))
-            # print("degrees(acos(radians(H_Angle))): ", degrees(acos(radians(H_Angle))))
 
             # TODO -> ver qual o calculo que está correto
 
-            new_Distance = (centre_depth/cos(radians(H_Angle))**2 + centre_depth*tan(radians(V_Angle))**2)**0.5
+            new_Distance = ((centre_depth/cos(radians(H_Angle)))**2 + (centre_depth*tan(radians(V_Angle)))**2)**0.5
+
+            new_Distance_km = new_Distance/1000
+            
+
+            lat_B = asin(sin(lat_A) * cos(new_Distance_km/R) + cos(lat_A) * sin(new_Distance_km/R) * cos(brng))
+            lon_B = lon_A + atan2(sin(brng) * sin(new_Distance_km/R) * cos(lat_A), cos(new_Distance_km/R) - sin(lat_A) * sin(lat_B))
+
+
+            
             
             angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
-            new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
+            # new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
 
             print("new_Distance: ", new_Distance)
-            print("new_Distance_2: ", new_Distance_2)
+            # print("new_Distance_2: ", new_Distance_2)
 
 
-            
             # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
             v.draw_text("{:.2f}m".format(new_Distance), (cX, cY + 20))
         
