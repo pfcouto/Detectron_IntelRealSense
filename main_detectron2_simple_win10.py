@@ -46,7 +46,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from mpl_toolkits.mplot3d import proj3d
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
-from sort import *
+# from sort import *
 
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -577,7 +577,7 @@ if __name__ == "__main__":
 
         
         v.overlay_instances(
-            # masks=masks,
+            masks=masks,
             boxes=boxes,
             labels=labels,
             keypoints=None,
@@ -728,8 +728,6 @@ if __name__ == "__main__":
             lon_B = lon_A + atan2(sin(brng) * sin(new_Distance_km/R) * cos(lat_A), cos(new_Distance_km/R) - sin(lat_A) * sin(lat_B))
 
 
-            
-            
             angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
             # new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
 
@@ -740,13 +738,11 @@ if __name__ == "__main__":
             # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
             v.draw_text("{:.2f}m".format(new_Distance), (cX, cY + 20))
         
-            # v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
-            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 35))
+            v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
+            v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
 
             v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
 
-
-            
 
         #for i in detected_objects:
             #print(i)
@@ -762,8 +758,8 @@ if __name__ == "__main__":
         time_end = time.time()
         total_time = time_end - time_start
 
-        # print("Time to process frame: {:.2f}".format(total_time))
-        # print("FPS: {:.2f}\n".format(1/total_time))
+        print("Time to process frame: {:.2f}".format(total_time))
+        print("FPS: {:.2f}\n".format(1/total_time))
 
         
         
