@@ -715,7 +715,12 @@ if __name__ == "__main__":
             # centre_depth = distance
 
             #convert degrees to radians - em vez do 45 deve tar a direcao do drone
-            brng = radians(45 + H_Angle)
+            direction = 45 + H_Angle
+            if direction > 360:
+                direction = direction - 360
+            elif direction < 0:
+                direction = direction + 360
+            brng = radians(direction)
 
             # TODO -> ver qual o calculo que está correto
 
@@ -728,11 +733,19 @@ if __name__ == "__main__":
             lon_B = lon_A + atan2(sin(brng) * sin(new_Distance_km/R) * cos(lat_A), cos(new_Distance_km/R) - sin(lat_A) * sin(lat_B))
 
 
-            angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
+            # angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
             # new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
 
             print("new_Distance: ", new_Distance)
             # print("new_Distance_2: ", new_Distance_2)
+
+
+            # TODO Calculate height of object to water level
+            # Heights are to water level
+
+            # new_Angle = gimbal_inclination + V_Angle
+            #fruit_height = drone_height - new_Distance * cos(radians(new_Angle))
+            
 
 
             # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
