@@ -46,7 +46,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from mpl_toolkits.mplot3d import proj3d
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
-# from sort import *
+from sort import *
 
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -290,9 +290,12 @@ class VideoStreamer:
             
             config.enable_stream(rs.stream.depth, RESOLUTION_X, RESOLUTION_Y, rs.format.z16, 30)
             config.enable_stream(rs.stream.color, RESOLUTION_X, RESOLUTION_Y, rs.format.bgr8, 30)
+            
         else:
             try:
-                config.enable_device_from_file("bag_files/{}".format(video_file))
+                # config.enable_device_from_file("bag_files/{}".format(video_file))
+                config.enable_device_from_file("{}".format(video_file))
+                
             except:
                 print("Cannot enable device from: '{}'".format(video_file))
 
@@ -516,7 +519,7 @@ if __name__ == "__main__":
     predictor = Predictor()
 
     # Initialise video streams from D435
-    video_streamer = VideoStreamer()
+    video_streamer = VideoStreamer(video_file=args.file)
 
     # Initialise Kalman filter tracker from modified Sort module
     mot_tracker = Sort()
@@ -539,8 +542,17 @@ if __name__ == "__main__":
         t1 = time.time()
 
         camera_time = t1 - time_start
+
+        video_file = False
+
+        if args.file != None:
+            video_file = True
         
-        predictor.create_outputs(color_image)
+        if video_file:
+            predictor.create_outputs(color_image[:, :, ::-1])
+        else:
+            predictor.create_outputs(color_image)
+            
         outputs = predictor.outputs
 
         t2 = time.time()
@@ -736,23 +748,27 @@ if __name__ == "__main__":
             # angle_camera_to_point = (H_Angle**2+V_Angle**2)**0.5
             # new_Distance_2 = centre_depth/cos(radians(angle_camera_to_point))
 
-            print("new_Distance: ", new_Distance)
             # print("new_Distance_2: ", new_Distance_2)
 
 
             # TODO Calculate height of object to water level
             # Heights are to water level
 
-            # new_Angle = gimbal_inclination + V_Angle
-            #fruit_height = drone_height - new_Distance * cos(radians(new_Angle))
+            gimbal_inclination = 0
+            drone_height = 100
+            # (talvez seja - em vez de +)
+            new_Angle = gimbal_inclination + V_Angle 
+            fruit_height = drone_height - new_Distance * cos(radians(new_Angle))
             
 
 
             # v.draw_text("{:.2f}m".format(centre_depth), (cX, cY + 20))
+
             v.draw_text("{:.2f}m".format(new_Distance), (cX, cY + 20))
         
             v.draw_text(f"Lat_B:{degrees(lat_B):.8f}\nLon_B:{degrees(lon_B):.8f}", (cX, cY + 35))
             v.draw_text(f"H_Angle:{H_Angle:.2f}\nV_Angle:{V_Angle:.2f}", (cX, cY + 70))
+            v.draw_text(f"fruit_height:{fruit_height:.2f}", (cX, cY + 105))
 
             v.draw_circle((CENTER_POINT_X, CENTER_POINT_Y), '#eeefff')
 
@@ -762,7 +778,11 @@ if __name__ == "__main__":
 
         #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         # cv2.imshow('Segmented Image', color_image)
-        cv2.imshow('Segmented Image', v.output.get_image()[:, :, ::-1])
+
+        if video_file:
+            cv2.imshow('Segmented Image', v.output.get_image())
+        else:
+            cv2.imshow('Segmented Image', v.output.get_image()[:,:,::-1])
 
         #cv2.imshow('Depth', depth_colormap)
         if cv2.waitKey(1) & 0xFF == ord('q'):
