@@ -758,7 +758,7 @@ if __name__ == "__main__":
             drone_height = 100
             # (talvez seja - em vez de +)
             new_Angle = gimbal_inclination + V_Angle 
-            fruit_height = drone_height - new_Distance * cos(radians(new_Angle))
+            fruit_height = drone_height - new_Distance * sin(radians(new_Angle))
             
 
 
